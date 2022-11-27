@@ -44,7 +44,7 @@ NGINX_COUNTER_SERVICE_SERVICE_PORT_HTTP=80
   1. mounted `default` contains default configuration for routing rules to site
   1. contains `nginx` module `sub_filter` to replace text (like `sed`) with environment variable `$FIRST_NAME` passed into container from template
 1. entry point of `nginx` container overridden with `envsubst` to read template and inject it into `/etc/nginx/conf.d/default` 
-1. [Screencap proof](screencaps/static_site_env_var_display.png)
+1. ![Screencap proof](screencaps/static_site_env_var_display.png)
 
 ### Ensuring nginx service (+- counter) is able to connect to MySQL pod
 1. Tested connection via `apt-get update` and `apt-get install inetutils-ping` to install basic net utils
@@ -57,7 +57,7 @@ NGINX_COUNTER_SERVICE_SERVICE_PORT_HTTP=80
   64 bytes from 172.17.0.5: icmp_seq=1 ttl=64 time=0.060 ms
   --- 172.17.0.5 ping statistics ---
   ```
-1. [Screencap proof](screencaps/nginx_mysql_connectivity.png)
+1. ![Screencap proof](screencaps/nginx_mysql_connectivity.png)
 
 ### Monitor resources using Prometheus and Grafana
 1. Not knowledgeable in Grafana and Prometheus
@@ -70,7 +70,7 @@ kube_pod_container_status_running{app_kubernetes_io_component="metrics", app_kub
 1
 kube_pod_container_status_running{app_kubernetes_io_component="metrics", app_kubernetes_io_instance="prometheus-1669374032", app_kubernetes_io_managed_by="Helm", app_kubernetes_io_name="kube-state-metrics", app_kubernetes_io_part_of="kube-state-metrics", app_kubernetes_io_version="2.6.0", container="nginx-counter", helm_sh_chart="kube-state-metrics-4.22.3", instance="172.17.0.4:8080", job="kubernetes-service-endpoints", namespace="default", node="minikube", pod="nginx-counter-5c49999f68-m84kq", service="prometheus-1669374032-kube-state-metrics", uid="2a3ac1ed-eed9-4c51-912f-251229998df4"}
 ```
-1. [Screencap proof](screencaps/prometheus_monitoring_output.png)
+1. ![Screencap proof](screencaps/prometheus_monitoring_output.png)
 
 
 ### Create table in MySQL
@@ -91,7 +91,7 @@ kube_pod_container_status_running{app_kubernetes_io_component="metrics", app_kub
   +------+-------------+
   1 row in set (0.00 sec)
   ```
-1. [Screencap proof](screencaps/mysql_init_data.png)
+1. ![Screencap proof](screencaps/mysql_init_data.png)
 
 ### Assumptions made
 1. Cluster will be executed in a Linux environment

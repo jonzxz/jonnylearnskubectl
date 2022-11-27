@@ -40,7 +40,7 @@ NGINX_COUNTER_SERVICE_PORT_80_TCP_ADDR=10.102.157.122
 NGINX_COUNTER_SERVICE_SERVICE_PORT_HTTP=80
 ```
 1. Environment variable added to static `nginx` site using
-  1. `nginx-conf/default` template mounted as `/tmp/nginx/conf.d/default`
+  1. `ConfigMap` `nginx-conf/default.conf` template mounted as `/tmp/nginx/conf.d/default.conf`
   1. mounted `default` contains default configuration for routing rules to site
   1. contains `nginx` module `sub_filter` to replace text (like `sed`) with environment variable `$FIRST_NAME` passed into container from template
 1. entry point of `nginx` container overridden with `envsubst` to read template and inject it into `/etc/nginx/conf.d/default` 

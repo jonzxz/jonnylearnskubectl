@@ -46,7 +46,7 @@ $(minikube mount ./html:/host/www)&
 
 echo "Spinning up nginx and MySQL"
 # Spin up other resources in kube
-kubectl apply -f manifest.yaml
+kubectl apply -f nginx.yaml,mysql.yaml
 
 echo "Enabling port forwarding for nginx"
 # Check for pod readiness before enabling port forwarding for nginx
@@ -65,7 +65,7 @@ kubectl port-forward service/$SERVICE_NAME 8080:80
 # sudo kill $(ps -C "minikube mount" -o pid=)
 
 ## Finally - wind down deployment and Prometheus
-# kubectl delete -f manifest.yaml
+# kubectl delete -f nginx.yaml,mysql.yaml
 # Release helm
 # helm delete $(helm list --filter '^prometheus*' -q)
 

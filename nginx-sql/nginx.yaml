@@ -1,3 +1,4 @@
+# Nginx Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -42,6 +43,7 @@ spec:
               - key: default.conf
                 path: default.conf
 ---
+# Nginx Service
 apiVersion: v1 
 kind: Service
 metadata:
@@ -58,7 +60,7 @@ spec:
   selector:
     run: nginx-counter
 ---
-## NGINX override
+## NGINX ConfigMap Override
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -83,62 +85,3 @@ data:
         }
 
     }
-
-# Database
----
-## Secret
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sql-secret
-type: kubernetes.io/basic-auth
-stringData:
-  password: Pa$$w0rd1
----
-## SQL deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mysql
-spec:
-  selector:
-    matchLabels:
-      app: mysql
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: mysql
-    spec:
-      containers:
-        - image: mysql:5.6 
-          name: mysql
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sql-secret
-                  key: password
-          ports:
-            - containerPort: 3306
-              name: mysql
-          volumeMounts:
-            - name: mysql-initdb-config
-              mountPath: /docker-entrypoint-initdb.d
-      volumes:
-        - name: mysql-initdb-config
-          configMap:
-            name: mysql-initdb-config
----
-## SQL Initialization script
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mysql-initdb-config
-data:
-  initdb.sql: |
-    CREATE database hello;
-    USE hello;
-    CREATE TABLE world (id INT, title VARCHAR(256));
-    INSERT INTO world VALUES (1, 'hello world');

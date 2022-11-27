@@ -1,67 +1,89 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: nginx-counter
   labels:
-    app.name: nginx-example
-  name: nginx-example
+    run: nginx-counter
 spec:
+  selector: 
+    matchLabels: 
+      run: nginx-counter
   replicas: 2
-  selector:
-    matchLabels:
-      app.name: nginx-example
   template:
     metadata:
       labels:
-        app.name: nginx-example
+        run: nginx-counter
     spec:
       containers:
         - image: nginx:latest
-          name: nginx-hello
+          name: nginx-counter
+          env:
+            - name: FIRST_NAME
+              value: JonathanKerk
           ports:
             - containerPort: 80
           volumeMounts:
             - name: nginx-www
               mountPath: /usr/share/nginx/html
-      # minikube mount required, minikube mount ./html:/host/www
+            - name: nginx-conf
+              mountPath: /tmp/nginx/conf.d
+          command: ["/bin/sh", "-c"]
+          # args: ["envsubst < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+          # TODO
+          args: ["envsubst < /tmp/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
       volumes:
         - name: nginx-www
           hostPath: 
             path: /host/www
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
+            items:
+              - key: default.conf
+                path: default.conf
 ---
-apiVersion: v1
+apiVersion: v1 
 kind: Service
 metadata:
+  name: nginx-counter-service
   labels:
-    service.name: nginx-service
-  name: nginx-service
+    run: nginx-counter
 spec:
-  type: ClusterIP
-  selector:
-    name: nginx-example
   ports:
-      - protocol: TCP
-        port: 80
-        targetPort: 80
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  type: LoadBalancer
+  selector:
+    run: nginx-counter
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+## NGINX override
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  labels:
-    ingress.name: nginx-ingress
-  name: nginx-ingress
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: localhost
-      http: 
-        paths:
-        - backend:
-            service:
-              name: nginx-example
-              port:
-                number: 80
-          path: /
-          pathType: Prefix
+  name: nginx-conf
+data:
+  default.conf: |
+    server {
+        listen       80;
+        listen  [::]:80;
+        server_name  localhost;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+            # TODO
+            sub_filter 'Increment and Decrement counter' 'Increment and Decrement counter - $FIRST_NAME';
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+
+    }
+
 # Database
 ---
 ## Secret
@@ -118,5 +140,5 @@ data:
   initdb.sql: |
     CREATE database hello;
     USE hello;
-    CREATE TABLE hello (id INT, title VARCHAR(256));
-    INSERT INTO hello VALUES (1, 'hello world');
+    CREATE TABLE world (id INT, title VARCHAR(256));
+    INSERT INTO world VALUES (1, 'hello world');

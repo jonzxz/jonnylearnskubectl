@@ -21,6 +21,9 @@ create-cluster:
   	-p "80:80@loadbalancer" \
   	--agents 3 --k3s-arg="--disable=traefik@server:0"
 
+delete-cluster:
+	k3d cluster delete
+
 install-nginx:
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	helm repo update

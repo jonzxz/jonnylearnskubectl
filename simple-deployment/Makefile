@@ -28,3 +28,15 @@ install-nginx:
 		-f ./ingress-nginx/values.yaml -f ./ingress-nginx/custom.yaml \
   	--create-namespace -n ingress-nginx \
 		ingress-nginx/ingress-nginx --version 4.8.4
+
+deploy-httpd:
+	kubectl apply -f httpd/deployment.yaml
+
+delete-httpd:
+	kubectl delete -f httpd/deployment.yaml
+
+deploy-yeasyweb:
+	kubectl apply -f yeasyweb/deployment.yaml
+
+delete-yeasyweb:
+	kubectl delete -f yeasyweb/deployment.yaml

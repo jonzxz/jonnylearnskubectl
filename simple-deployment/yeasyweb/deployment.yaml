@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-yeasy
+  labels:
+    app: yeasy
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-yeasy
+  namespace: ns-yeasy
+  labels:
+    app: yeasy
+spec:
+  selector:
+    matchLabels:
+      app: yeasy
+  replicas: 1
+  template:
+    metadata:
+      namespace: ns-yeasy
+      labels:
+        app: yeasy
+    spec:
+      containers:
+        - image: yeasy/simple-web
+          name: yeasy
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-yeasy
+  namespace: ns-yeasy
+  labels:
+    app: yeasy
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+  selector:
+    app: yeasy
+
+--- 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-yeasy
+  namespace: ns-yeasy
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: svc-yeasy
+                port:
+                  number: 80
+            path: /
+      host: yeasy.localhost

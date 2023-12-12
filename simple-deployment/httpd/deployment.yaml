@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-httpd
+  labels:
+    app: httpd
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-httpd
+  namespace: ns-httpd
+  labels:
+    app: httpd
+spec:
+  selector:
+    matchLabels:
+      app: httpd
+  replicas: 1
+  template:
+    metadata:
+      namespace: ns-httpd
+      labels:
+        app: httpd
+    spec:
+      containers:
+        - image: httpd
+          name: httpd
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-httpd
+  namespace: ns-httpd
+  labels:
+    app: httpd
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+  selector:
+    app: httpd
+
+--- 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-httpd
+  namespace: ns-httpd
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: svc-httpd
+                port:
+                  number: 80
+            path: /
+      host: httpd.localhost
